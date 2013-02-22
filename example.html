@@ -1,0 +1,63 @@
+<!DOCTYPE html />
+<html>
+<head>
+	<title>EditTable Example</title>
+</head>
+<body>
+<h1>EditTable Example</h1>
+<p>This shows a basic example of EditTable.</p>
+<p>Click any of the table cells below to edit them.  Also try navigating around with the keyboard (tab, shift+tab, up, down).</p>
+
+<table id='my_table' border="1" cellspacing="0" cellpadding="10">
+	<thead>
+	<tr>
+		<th>Name</th>
+		<th>Gender</th>
+		<th>Description</th>
+	</tr>
+	</thead>
+	<tr>
+		<td>John Smith</td>
+		<td>Male</td>
+		<td>Famous for having the most popular male fake name.</td>
+	</tr>
+	<tr>
+		<td>Jane Doe</td>
+		<td>Female</td>
+		<td>Friend of John Smith.</td>
+	</tr>
+	<tr>
+		<td>John Doe</td>
+		<td>Male</td>
+		<td>Husband of Jane Doe and extremely jealous of John Smith.</td>
+	</tr>
+</table>
+
+<script src='lib/jquery-1.8.3.min.js' type='text/javascript'></script>
+<script src='lib/EditTable.js' type='text/javascript'></script>
+<script type='text/javascript'>
+	var columns = {
+		"Name": {
+			editor: "Text"
+		},
+		"Gender": {
+			editor: "Select",
+			options: {
+				values: ['Male','Female']
+			}
+		},
+		"Description": {
+			editor: "LongText"
+		}
+	};
+
+	var editor = new EditTable($('#my_table'),columns,{
+		editors: {
+			Text: EditTable.TextEditor,
+			Select: EditTable.SelectEditor,
+			LongText: EditTable.LongTextEditor
+		}
+	});
+</script>
+</body>
+</html>
