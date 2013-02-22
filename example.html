@@ -37,9 +37,6 @@
 <script src='lib/EditTable.js' type='text/javascript'></script>
 <script type='text/javascript'>
 	var columns = {
-		"Name": {
-			editor: "Text"
-		},
 		"Gender": {
 			editor: "Select",
 			options: {
@@ -51,13 +48,7 @@
 		}
 	};
 
-	var editor = new EditTable($('#my_table'),columns,{
-		editors: {
-			Text: EditTable.TextEditor,
-			Select: EditTable.SelectEditor,
-			LongText: EditTable.LongTextEditor
-		}
-	});
+	var editor = new EditTable($('#my_table'),columns);
 </script>
 </body>
 </html>
