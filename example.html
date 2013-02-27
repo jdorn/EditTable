@@ -33,10 +33,16 @@
 	</tr>
 </table>
 
+<button id="reset" type="button">Reset</button>
+<button id="log" type="button">Console.log</button>
+
 <script src='lib/jquery-1.8.3.min.js' type='text/javascript'></script>
 <script src='lib/EditTable.js' type='text/javascript'></script>
 <script type='text/javascript'>
 	var columns = {
+        "Name": {
+            formatters: [new EditTable.BoldColumnFormat()]
+        },
 		"Gender": {
 			editor: "Select",
 			options: {
@@ -49,6 +55,17 @@
 	};
 
 	var editor = new EditTable($('#my_table'),columns);
+
+    var original = editor.getRows();
+
+    $('#reset').click(function() {
+        editor.setRows(original);
+    });
+
+    $('#log').click(function() {
+        console.log(JSON.stringify(editor.getRows(),null,2));
+    });
+
 </script>
 </body>
 </html>
