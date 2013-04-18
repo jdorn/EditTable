@@ -26,19 +26,19 @@
         <td>John Smith</td>
         <td>Male</td>
         <td>Famous for having the most popular male fake name.</td>
-        <td>john.smith@example.com</td>
+        <td></td>
     </tr>
     <tr>
         <td>Jane Doe</td>
         <td>Female</td>
         <td>Friend of John Smith.</td>
-        <td>jane.doe@example.com</td>
+        <td></td>
     </tr>
     <tr>
         <td>John Doe</td>
         <td>Male</td>
         <td>Husband of Jane Doe and extremely jealous of John Smith.</td>
-        <td>john.doe@example.com</td>
+        <td></td>
     </tr>
 </table>
 
@@ -47,12 +47,12 @@
 <button id="addrow" type="button">Add Row</button>
 <button id="removerow" type="button">Remove Row</button>
 
-<script src='lib/jquery-1.8.3.min.js' type='text/javascript'></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src='lib/EditTable.js' type='text/javascript'></script>
 <script type='text/javascript'>
     var columns = {
         "Name": {
-            formatters: [new EditTable.BoldColumnFormat()]
+            formatters: [new EditTable.BoldFormatter()]
         },
         "Gender": {
             editor: "Select",
@@ -64,22 +64,26 @@
             editor: "LongText"
         },
         "Generated Email": {
-            editor: "Disabled",
-            formatters: [new EditTable.ClassColumnFormat({class: 'disabled'})]
+            // Don't allow input for this cell
+            disabled: true,
+            // Will be called when the cell's value needs to be re-calculated
+            value: function(cell) {
+                // Get the "Name" cell for this row
+                var row = editor.getRow(cell);
+                var name = editor.getCell(row,'Name').data('value');
+                
+                if(!name) return '';
+                
+                // Generate an email address based on the name
+                return name.toLowerCase().replace(/[^a-zA-Z_\-0-9\s\.]/g,'').replace(/\s+/g,'.')+"@example.com";
+            },
+            // Re-calculates the value when the 'Name' column changes
+            watch: ['Name'],
+            formatters: [function(value, cell) { cell.addClass('disabled'); return value; }]
         }
     };
 
     var editor = new EditTable($('#my_table'),columns);
-
-    editor.on('save',function(row,col,data) {
-        if(col === 'Name') {
-            setting = true;
-            var email = data.toLowerCase().replace(/[^a-zA-Z_\-0-9\s\.]/g,'').replace(/\s+/g,'.')+"@example.com";
-            var email_cell = editor.getCell(row,'Generated Email');
-
-            editor.setCell(email_cell,email);
-        }
-    });
 
     var original = editor.getRows();
 
