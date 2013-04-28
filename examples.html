@@ -1,0 +1,296 @@
+<!DOCTYPE html />
+<html>
+<head>
+    <title>EditTable Examples</title>
+    <!-- 
+        The only dependency is jQuery.  
+        The rest of these scripts/styles are for demonstrating integrations with other frameworks 
+    -->
+    <link href='//code.jquery.com/ui/1.10.2/themes/south-street/jquery-ui.css' rel='stylesheet' />
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+    
+    <script src='lib/EditTable.js' type='text/javascript'></script>
+    <style>
+        .padding td, .padding th {
+            padding: 4px;
+        }
+        .example {
+            margin: 40px 0;
+        }
+        
+        th.disabled, td.disabled {
+            opacity: .6;
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+<div class='container'>
+    <div class='example'>
+        <h1>Zero-Configuration Example</h1>
+        <p>EditTable can work with zero configuration on an existing HTML table.</p>
+        <p>Click cells to edit them, use keyboard navigation (TAB, Shift+Tab, Up/Down Arrows), and try out the buttons below.</p>
+        
+        <table id='zeroconfig' border="1" class='padding'>
+            <tr>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>John Smith</td>
+                <td>Male</td>
+                <td>Famous for having the most popular male fake name.</td>
+            </tr>
+            <tr>
+                <td>Jane Doe</td>
+                <td>Female</td>
+                <td>Friend of John Smith.</td>
+            </tr>
+            <tr>
+                <td>John Doe</td>
+                <td>Male</td>
+                <td>Husband of Jane Doe and extremely jealous of John Smith.</td>
+            </tr>
+        </table>
+        <div style='margin-top: 20px;'>
+            <button class='reset' type="button">Reset</button>
+            <button class='log' type="button">Console.log</button>
+            <button class='addrow' type="button">Add Row</button>
+            <button class='removerow' type="button">Remove Last Row</button>
+        </div>
+        
+        <script>
+            $("#zeroconfig").editTable();
+        </script>
+    </div>
+    
+    <div class='example'>
+        <h1>Full Featured Example</h1>
+        <p>This example demonstrates many of the advanced features of EditTable.  Things to note:</p>
+        <ul>
+            <li>Different editors (Gender column uses select box)</li>
+            <li>Custom formatting (Email turned into mailto link)</li>
+            <li>Email column is disabled and you can't edit it</li>
+            <li>Changing the Name column re-generates the Email column</li>
+        </ul>
+        
+        <table id='fullfeatured' border="1" class='padding'>
+            <tr>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Description</th>
+                <th>Email</th>
+            </tr>
+            <tr>
+                <td>John Smith</td>
+                <td>Male</td>
+                <td>Famous for having the most popular male fake name.</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Jane Doe</td>
+                <td>Female</td>
+                <td>Friend of John Smith.</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>John Doe</td>
+                <td>Male</td>
+                <td>Husband of Jane Doe and extremely jealous of John Smith.</td>
+                <td></td>
+            </tr>
+        </table>
+        <div style='margin-top: 20px;'>
+            <button class='reset' type="button">Reset</button>
+            <button class='log' type="button">Console.log</button>
+            <button class='addrow' type="button">Add Row</button>
+            <button class='removerow' type="button">Remove Last Row</button>
+        </div>
+        
+        <script>
+            (function() {
+                var table = $("#fullfeatured");
+                
+                table.editTable({
+                    columns: {
+                        Gender: {
+                            editor: 'select',
+                            options: {
+                                values: ['Male','Female']
+                            }
+                        },
+                        Email: {
+                            disabled: true,
+                            tdClass: 'disabled',
+                            thClass: 'disabled'
+                        }
+                    }
+                });
+                
+                table.on('set.editTable',function(e,cell) {
+                    // Use the 'Name' column to generate an email
+                    if(cell.colname === "Name") {
+                        var email = cell.value
+                            .toLowerCase()
+                            .replace(/\s+/g,'.')
+                            .replace(/[^a-z0-9\.\-_]+/g,'')+'@test.com';
+                            
+                        table.editTable('set', cell.row, 'Email', email);
+                    }
+                    // Make the email column a mailto link
+                    else if(cell.colname === "Email") {
+                        cell.el.html('<a href="mailto:'+cell.value+'">'+cell.el.html()+'</a>');
+                    }
+                });
+                
+                // Refresh the table so our set listener will be fired
+                table.editTable('refresh');
+            })();
+        </script>
+    </div>
+    
+    <div class='ui-widget example'>
+        <h1>jQueryUI Integration Example</h1>
+        <p>Works great with jQueryUI.  This example demonstrates:</p>
+        <ul>
+            <li>Custom classes for table cells and headers</li>
+            <li>Drag and drop rows to rearrange (uses jQueryUI's sortable component)</li>
+        </ul>
+
+        <table id='jqueryui' class='padding'>
+            <tr>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>John Smith</td>
+                <td>Male</td>
+                <td>Famous for having the most popular male fake name.</td>
+            </tr>
+            <tr>
+                <td>Jane Doe</td>
+                <td>Female</td>
+                <td>Friend of John Smith.</td>
+            </tr>
+            <tr>
+                <td>John Doe</td>
+                <td>Male</td>
+                <td>Husband of Jane Doe and extremely jealous of John Smith.</td>
+            </tr>
+        </table>
+
+        <div style='margin-top: 20px;'>
+            <button class='reset' type="button">Reset</button>
+            <button class='log' type="button">Console.log</button>
+            <button class='addrow' type="button">Add Row</button>
+            <button class='removerow' type="button">Remove Last Row</button>
+        </div>
+        
+        <script>
+        (function() {
+            var table = $("#jqueryui");
+            
+            table.editTable({
+                columns: {
+                    Name: {
+                        tdClass: 'ui-state-active'
+                    }
+                },
+                tdClass: 'ui-widget-content',
+                thClass: 'ui-state-default'
+            });
+            
+            $('button',table.parent('.example')).button();
+
+            table.sortable({
+                items: 'tbody tr',
+                update: function() {
+                   // We need to refresh the editTable plugin every time we manually
+                   // alter the table's DOM elements.
+                   table.editTable('refresh');
+                }
+            });
+        })();
+        </script>
+    </div>
+    
+    <div class='example'>
+        <h1>Twitter Bootstrap Integration Example</h1>
+        <p>Doesn't modify table markup, so it should work flawlessly with CSS frameworks like Bootstrap.</p>
+        <p>This example also shows creating an EditTable from an array of JSON objects instead of from existing HTML.</p>
+
+        <table id='bootstrap' class='table table-bordered table-striped'></table>
+
+        <div style='margin-top: 20px;'>
+            <button class='reset btn' type="button">Reset</button>
+            <button class='log btn' type="button">Console.log</button>
+            <button class='addrow btn' type="button">Add Row</button>
+            <button class='removerow btn' type="button">Remove Last Row</button>
+        </div> 
+        
+        <script>
+        (function() {
+            $("#bootstrap")
+                .editTable()
+                .editTable('rows',[
+                  {
+                    "Name": "John Smith",
+                    "Gender": "Male",
+                    "Description": "Famous for having the most popular male fake name."
+                  },
+                  {
+                    "Name": "Jane Doe",
+                    "Gender": "Female",
+                    "Description": "Friend of John Smith."
+                  },
+                  {
+                    "Name": "John Doe",
+                    "Gender": "Male",
+                    "Description": "Husband of Jane Doe and extremely jealous of John Smith."
+                  }
+                ]);
+        })();
+        </script>
+    </div>
+</div>
+
+<script type='text/javascript'>
+$(".example").each(function() {
+    var table = $('table',$(this)); 
+   
+    // Store the original data so we can restore it later
+    var orig = table.editTable('rows');
+    $(".reset",$(this)).on('click',function() {
+       table.editTable('rows',orig); 
+    });
+    
+    // Prints out the table's current value as an array of JSON objects
+    $(".log",$(this)).on('click',function() {
+       console.log(JSON.stringify(table.editTable('rows'),null,2)); 
+    });
+    
+    // Adds a row to the bottom of the table
+    $(".addrow",$(this)).on('click',function() {
+       table.editTable('add'); 
+       
+       // To add more than 1 row at a time:
+       // table.editTable('add', 5);
+    });
+    
+    // Removes the last row of the table
+    $(".removerow",$(this)).on('click',function() {
+       table.editTable('remove'); 
+       
+       // To delete a specific row
+       // Row index starts at 0, so this would delete the 3rd row
+       // table.editTable('remove', 2)
+    });
+});
+
+</script>
+</body>
+</html>
