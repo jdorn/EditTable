@@ -37,4 +37,4 @@ var rows = $("#my_table").editTable('rows');
 </script>
 ```
 
-Checkout out the [examples](http://htmlpreview.github.io/?https://github.com/jdorn/EditTable/blob/master/examples.html) for more advanced options.
+Checkout out the [examples](http://htmlpreview.github.io/?http://github.com/jdorn/EditTable/blob/master/examples.html) for more advanced options.
