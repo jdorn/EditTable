@@ -3,7 +3,7 @@
 <head>
     <title>EditTable Example</title>
     <style>
-        td.disabled {
+        td.disabled, th.disabled {
             background-color: #ccc;
         }
     </style>
@@ -22,6 +22,7 @@
         <th>Generated Email</th>
     </tr>
     </thead>
+    <tbody>
     <tr>
         <td>John Smith</td>
         <td>Male</td>
@@ -40,6 +41,7 @@
         <td>Husband of Jane Doe and extremely jealous of John Smith.</td>
         <td></td>
     </tr>
+    </tbody>
 </table>
 
 <button id="reset" type="button">Reset</button>
@@ -48,60 +50,68 @@
 <button id="removerow" type="button">Remove Row</button>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
 <script src='lib/EditTable.js' type='text/javascript'></script>
 <script type='text/javascript'>
-    var columns = {
-        "Name": {
-            formatters: [new EditTable.BoldFormatter()]
-        },
-        "Gender": {
-            editor: "Select",
+
+var table = $("#my_table");
+
+table.editTable({
+    columns: {
+        Gender: {
+            editor: 'select',
             options: {
-                values: ['Male','Female']
+                values:['Male','Female']
             }
         },
-        "Description": {
-            editor: "LongText"
-        },
-        "Generated Email": {
-            // Don't allow input for this cell
+        'Generated Email': {
             disabled: true,
-            // Will be called when the cell's value needs to be re-calculated
-            value: function(cell) {
-                // Get the "Name" cell for this row
-                var row = editor.getRow(cell);
-                var name = editor.getCell(row,'Name').data('value');
-                
-                if(!name) return '';
-                
-                // Generate an email address based on the name
-                return name.toLowerCase().replace(/[^a-zA-Z_\-0-9\s\.]/g,'').replace(/\s+/g,'.')+"@example.com";
-            },
-            // Re-calculates the value when the 'Name' column changes
-            watch: ['Name'],
-            formatters: [function(value, cell) { cell.addClass('disabled'); return value; }]
+            'class': 'disabled'
         }
-    };
+    },
+    set: function(e,cell) {
+        // Bold the 'Name' column and use it to generate an email
+        if(cell.colname === "Name") {
+            cell.el.html('<strong>'+cell.el.html()+'</strong>');
+            
+            var email = cell.value
+                .toLowerCase()
+                .replace(/\s+/g,'.')
+                .replace(/[^a-z0-9\.\-_]+/g,'')+'@test.com';
+                
+            table.editTable('set', cell.row, 'Generated Email', email);
+        }
+        // Make the email column a mailto link
+        else if(cell.colname === "Generated Email") {
+            cell.el.html('<a href="mailto:'+cell.value+'">'+cell.el.html()+'</a>');
+        }
+    }
+});
 
-    var editor = new EditTable($('#my_table'),columns);
+var orig = table.editTable('rows');
+$("#reset").on('click',function() {
+   table.editTable('rows',orig); 
+});
+$("#log").on('click',function() {
+   console.log(table.editTable('rows')); 
+});
+$("#addrow").on('click',function() {
+   table.editTable('add'); 
+});
+$("#removerow").on('click',function() {
+   table.editTable('remove'); 
+});
 
-    var original = editor.getRows();
-
-    $('#reset').click(function() {
-        editor.setRows(original);
-    });
-
-    $('#log').click(function() {
-        console.log(JSON.stringify(editor.getRows(),null,2));
-    });
-
-    $('#addrow').click(function() {
-        editor.addRow();
-    });
-
-    $('#removerow').click(function() {
-        editor.removeRow();
-    });
+// jQueryUI isn't required.  This is just showing the integration with the
+// ui.sortable plugin
+table.sortable({
+    items: 'tbody tr',
+    update: function() {
+       // We need to refresh the editTable plugin every time we manually
+       // alter the table's DOM elements.
+       table.editTable('refresh');
+    }
+});
 
 </script>
 </body>
